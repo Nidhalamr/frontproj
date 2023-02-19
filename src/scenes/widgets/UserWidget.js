@@ -2,14 +2,15 @@ import {
   ManageAccountsOutlined,
 } from "@mui/icons-material";
 import { Box, Typography, Divider, useTheme } from "@mui/material";
-import UserImage from "components/UserImage";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
+import UserImage from "components/UserImage";
+
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const UserWidget = ({ userId}) => {
+const UserWidget = ({ userId, picturePath }) => {
   const [user, setUser] = useState(null);
   const { palette } = useTheme();
   const navigate = useNavigate();
@@ -19,9 +20,9 @@ const UserWidget = ({ userId}) => {
   const main = palette.neutral.main;
 
   const getUser = async () => {
-    const response = await fetch(`http://localhost:3001/user/${userId}`, {
+    const response = await fetch(`/user/${userId}`, {
       method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: token },
     });
     const data = await response.json();
     setUser(data);
@@ -36,9 +37,10 @@ const UserWidget = ({ userId}) => {
   }
 
   const {
-    firstName,
-    lastName,
-  } = user;
+    prenom,
+    nom,
+    isMedecin,
+  } = user.data;
 
   return (
     <WidgetWrapper>
@@ -49,6 +51,7 @@ const UserWidget = ({ userId}) => {
         onClick={() => navigate(`/profile/${userId}`)}
       >
         <FlexBetween gap="1rem">
+        <UserImage image={picturePath} />
           <Box>
             <Typography
               variant="h4"
@@ -61,7 +64,7 @@ const UserWidget = ({ userId}) => {
                 },
               }}
             >
-              {firstName} {lastName}
+              {isMedecin?`Dr. ${prenom} ${nom}`:`${prenom} ${nom}`}
             </Typography>
           </Box>
         </FlexBetween>
@@ -69,6 +72,11 @@ const UserWidget = ({ userId}) => {
       </FlexBetween>
 
       <Divider />
+      <Box p="1rem 0">
+        <Box display="flex" alignItems="center" gap="1rem" mb="0.5rem">
+          <Typography color={medium}>{isMedecin?"Medecin":"Personnel médical"}</Typography>
+        </Box>
+      </Box>
 
 
     </WidgetWrapper>

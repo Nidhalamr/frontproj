@@ -7,18 +7,20 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLogin } from "state";
+import DatePickerField from "./Datepick"
+import axios from "axios";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
-import DatePickerField from "./Datepick"
-import { useFormik } from "formik";
-import axios from "axios";
-import MyPostWidget from "../widgets/MyPostWidget"
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+
+import { ToastContainer,toast} from 'react-toastify';
+
+
 
 const registerSchema = yup.object().shape({
   prenom: yup.string().required("required"),
@@ -27,6 +29,7 @@ const registerSchema = yup.object().shape({
   genre: yup.string().required("required"),
   dateDeNaissance: yup.string().required("required"),
   isMedecin: yup.boolean(),
+  picture: yup.string()
 });
 
 const loginSchema = yup.object().shape({
@@ -41,6 +44,7 @@ const initialValuesRegister = {
   dateDeNaissance: "",
   genre: "",
   medecinId: false,
+  picture:"C:\Users\Nidhal\Desktop\Projet cab\public\assets\Capture333.PNG"
 };
 
 
@@ -65,14 +69,7 @@ const Form = () => {
   const isRegister = pageType === "register";
 
 
-  const formik = useFormik({
-    initialValues: {
-      healthBackground: []
-    },
-    onSubmit: (values) => {
-      alert(JSON.stringify(values, null, 2));
-    }
-  });
+
 
   const register = async (values, onSubmitProps) => {
     // this allows us to send form info with image
@@ -89,9 +86,15 @@ const Form = () => {
     //     body: JSON.stringify(values),
     //   }
     // );
+    const formData = new FormData();
+    for (let value in values) {
+      formData.append(value, values[value]);
+    }
+    formData.append("picturePath", values.picture.name);
 
-    const savedUserResponse = await axios.post('http://localhost:3001/user/create', 
-      values
+
+    const savedUserResponse = await axios.post('/user/create', 
+      formData
     )
     .then(function (response) {
       console.log(response);
@@ -109,7 +112,7 @@ const Form = () => {
   };
 
   const login = async (values, onSubmitProps) => {
-    const loggedInResponse = await fetch("http://localhost:3001/user/login", {
+    const loggedInResponse = await fetch("/user/login", {
       method: "POST",
       headers: { "Access-Control-Allow-Origin": "*",
       'Access-Control-Allow-Methods':'GET, POST, PUT, PATCH, DELETE',
@@ -117,7 +120,7 @@ const Form = () => {
       body: JSON.stringify(values),
     });
 
-  //   const loggedInResponse = await axios.post('http://localhost:5000/user/login', 
+  //   const loggedInResponse = await axios.post('/user/login', 
   //   values
   // )
   // .then(function (response) {
@@ -130,7 +133,7 @@ const Form = () => {
 
 
 
-    const loggedIn = await loggedInResponse.json();
+    const loggedIn =await loggedInResponse.json();
     onSubmitProps.resetForm();
     if (loggedIn) {
       dispatch(
@@ -139,6 +142,7 @@ const Form = () => {
           token: loggedIn.token,
         })
       );
+      console.log("nav")
       navigate("/home");
     }
   };
@@ -148,8 +152,9 @@ const Form = () => {
     if (isRegister) await register(values, onSubmitProps);
   };
 
+  
   return (
-
+    <>
     <Formik
       onSubmit={handleFormSubmit}
       initialValues={isLogin ? initialValuesLogin : initialValuesRegister}
@@ -222,8 +227,41 @@ const Form = () => {
                   }
                   helperText={touched.genre && errors.genre}
                   sx={{ gridColumn: "span 4" }}
+                  />
+                  <Box
+                  gridColumn="span 4"
+                  border={`1px solid ${palette.neutral.medium}`}
+                  borderRadius="5px"
+                  p="1rem"
+                >
+                  <Dropzone
+                    acceptedFiles=".jpg,.jpeg,.png"
+                    multiple={false}
+                    onDrop={(acceptedFiles) =>
+                      setFieldValue("picture", acceptedFiles[0])
+                    }
+                  >
+                    {({ getRootProps, getInputProps }) => (
+                      <Box
+                        {...getRootProps()}
+                        border={`2px dashed ${palette.primary.main}`}
+                        p="1rem"
+                        sx={{ "&:hover": { cursor: "pointer" } }}
+                      >
+                        <input {...getInputProps()} />
+                        {!values.picture ? (
+                          <p>Add Picture Here</p>
+                        ) : (
+                          <FlexBetween>
+                            <Typography>{values.picture.name}</Typography>
+                            <EditOutlinedIcon />
+                          </FlexBetween>
+                        )}
+                      </Box>
+                    )}
+                  </Dropzone>
+                </Box>
 
-                />
                 Medecin?
                <form >
             
@@ -308,6 +346,9 @@ const Form = () => {
         </form>
       )}
     </Formik>
+    <ToastContainer/>
+    </> 
+
   );
 };
 

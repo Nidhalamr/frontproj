@@ -1,12 +1,7 @@
-import {
-  EditOutlined,
-  DeleteOutlined,
-  AttachFileOutlined,
-  GifBoxOutlined,
-  ImageOutlined,
-  MicOutlined,
-  MoreHorizOutlined,
-} from "@mui/icons-material";
+import React from 'react';
+
+import { ToastContainer,toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Box,
   Divider,
@@ -23,11 +18,8 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { useState } from "react";
-
 import { Formik } from "formik";
 import * as yup from "yup";
-
-
 
 
 const registerSchema = yup.object().shape({
@@ -48,7 +40,7 @@ const initialValuesRegister = {
 
 
 const MyPostWidget = () => {
-
+  let savedUser=undefined
   const dispatch = useDispatch();
   const { palette } = useTheme();
   const token = useSelector((state) => state.token);
@@ -58,29 +50,69 @@ const MyPostWidget = () => {
 
   const register = async (values, onSubmitProps) => {
 
-
-    const savedUserResponse = await axios.post('http://localhost:3001/patient/create', 
-      values
+const config ={
+  headers:{ Authorization: token }
+}
+    const savedUserResponse = await axios.post('/patient/create', 
+      values,config
     )
     .then(function (response) {
       console.log(response);
+      savedUser=response
     })
     .catch(function (error) {
       console.log(error);
     });
+    console.log(savedUser)
+    if (savedUser){
+      toast.success('Patient ajouté', {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        })
+    }else{
+      toast.error("Erreur lors de l'ajout", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        })
 
-    const savedUser = await savedUserResponse.json();
+
+    }
+
+
+  
     onSubmitProps.resetForm();
 
   };
+
+  // const notify=()=>{
+  // if(savedUser){}else{}
+  //     console.log(savedUser,"aaa")
+
+  // }
+  
+
 
   const handleFormSubmit = async (values, onSubmitProps) => {
     await register(values, onSubmitProps);
   };
 
   return (
+    <>
     <WidgetWrapper>
-      <FlexBetween gap="1.5rem">
+
+
       <Formik
       onSubmit={handleFormSubmit}
       initialValues={initialValuesRegister}
@@ -105,6 +137,7 @@ const MyPostWidget = () => {
               "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
             }}
           >
+
         <TextField
                   label="Prenom"
                   onBlur={handleBlur}
@@ -117,6 +150,7 @@ const MyPostWidget = () => {
                   helperText={touched.prenom && errors.prenom}
                   sx={{ gridColumn: "span 2" }}
                 />
+
                 <TextField
                   label="Nom"
                   onBlur={handleBlur}
@@ -154,6 +188,7 @@ const MyPostWidget = () => {
             </Box>
 
             <Box>
+              
             <Button
               fullWidth
               type="submit"
@@ -165,10 +200,14 @@ const MyPostWidget = () => {
                 "&:hover": { color: palette.primary.main },
               }}
             >
+            ENREGISTRER
+
             </Button>
             <Typography
               onClick={() => {
-                resetForm();
+              resetForm()
+
+
               }}
               sx={{
                 textDecoration: "underline",
@@ -184,11 +223,16 @@ const MyPostWidget = () => {
 
           </Box>
         </form>
-      )
+
+)
       }
       </Formik>
-      </FlexBetween>
+
+
     </WidgetWrapper>
+      <ToastContainer/> 
+      </>
+
 )
 };
 export default MyPostWidget;

@@ -1,15 +1,43 @@
 import { Box, useMediaQuery } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
 import Navbar from "scenes/navbar";
 import UserWidget from "scenes/widgets/UserWidget";
 import MyPostWidget from "scenes/widgets/MyPostWidget";
 import PostsWidget from "scenes/widgets/PostsWidget";
 import AdvertWidget from "scenes/widgets/AdvertWidget";
+import axios from "axios"
 
-
-const HomePage = () => {
+const SearchPage = () => {
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const { _id,picturePath} = useSelector((state) => state.user);
+  const search = useSelector((state) => state.search);
+  const token = useSelector((state) => state.token);
+
+  let searchEnc=encodeURI(search)
+
+  let url=`/search/query?search=${searchEnc}&limit=10`
+
+  const config = {
+    headers:
+      { Authorization: token }
+    
+  };
+
+  const getPatient = async () => {
+    const response = await axios.get(url, config)
+    .then(res=> console.log(res))
+    .catch(err=> console.log(err))
+    
+    
+ 
+
+
+  }
+  
+
+    getPatient();
+
 
 
   
@@ -31,7 +59,6 @@ const HomePage = () => {
           flexBasis={isNonMobileScreens ? "42%" : undefined}
           mt={isNonMobileScreens ? undefined : "2rem"}
         >
-          <MyPostWidget />
           {/* <PostsWidget userId={_id} /> */}
         </Box>
         {isNonMobileScreens && (
@@ -48,4 +75,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default SearchPage;

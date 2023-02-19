@@ -19,18 +19,24 @@ import {
   Help,
   Menu,
   Close,
+  CoPresent,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { setMode, setLogout } from "state";
+import { setMode, setLogout,setSearch} from "state";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
+import { useEffect} from "react";
 
-const Navbar = () => {
+
+const Navbar = ({userId}) => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.user);
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
+  const token = useSelector((state) => state.token);
+  const [input, setInput] = useState("");
+
+
 
   const theme = useTheme();
   const neutralLight = theme.palette.neutral.light;
@@ -38,8 +44,56 @@ const Navbar = () => {
   const background = theme.palette.background.default;
   const primaryLight = theme.palette.primary.light;
   const alt = theme.palette.background.alt;
+  const [user, setUser] = useState(null);
 
-  const fullName = `${user.firstName} ${user.lastName}`;
+
+  const getUser = async () => {
+    const response = await fetch(`/user/${userId}`, {
+      method: "GET",
+      headers: { Authorization: token },
+    });
+    const data = await response.json();
+    setUser(data);
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!user) {
+    return null;
+  }
+
+  const {
+    prenom,
+    nom,
+
+  } = user.data;
+
+
+let  fullName = `${prenom} ${nom}`;
+
+
+let inputHandler = (e) => {
+  //convert input text to lower case
+  let lowerCase = e.target.value.toLowerCase();
+  setInput(lowerCase);
+console.log(input)
+};
+
+
+let handleSubmit= () => {
+  dispatch(
+    setSearch({
+  search:input
+}))
+
+console.log(input,"éaa")
+navigate(`/patient/search/search=${input}`)
+
+};
+
+
 
   return (
     <FlexBetween padding="1rem 6%" backgroundColor={alt}>
@@ -65,9 +119,14 @@ const Navbar = () => {
             gap="3rem"
             padding="0.1rem 1.5rem"
           >
-            <InputBase placeholder="Search..." />
+            <InputBase placeholder="Search..." 
+              onChange={inputHandler}
+            
+            />
             <IconButton>
-              <Search />
+              <Search type="submit"
+              onClick={() => handleSubmit()}
+                />
             </IconButton>
           </FlexBetween>
         )}
