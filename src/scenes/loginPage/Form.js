@@ -7,19 +7,23 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { Formik } from "formik";
+import { Formik, useFormik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLogin } from "state";
-import DatePickerField from "./Datepick"
+import { setRegistered } from "state";
+import { useSelector } from "react-redux";
+
 import axios from "axios";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-
+import Checkbox from '@mui/material/Checkbox';
 import { ToastContainer,toast} from 'react-toastify';
-
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import AdapterDateFns from '@date-io/date-fns';
 
 
 const registerSchema = yup.object().shape({
@@ -27,13 +31,15 @@ const registerSchema = yup.object().shape({
   nom: yup.string().required("required"),
   password: yup.string().required("required"),
   genre: yup.string().required("required"),
-  dateDeNaissance: yup.string().required("required"),
+  dateDeNaissance: yup.string(),
   isMedecin: yup.boolean(),
   picture: yup.string()
 });
 
 const loginSchema = yup.object().shape({
-  theId: yup.string().required("required").test('len', 'Doit contenir 6 ou 8 caractères', val => val.length === 6||val.length === 8),
+  theId: yup.string().required("required")
+  // .test('len', 'Doit contenir 6 ou 8 caractères', val => val.length === 6||val.length === 8)
+  ,
   password: yup.string().required("required"),
 });
 
@@ -53,7 +59,6 @@ const initialValuesRegister = {
 
 
 
-
 const initialValuesLogin = {
   theId: "",
   password: "",
@@ -62,12 +67,14 @@ const initialValuesLogin = {
 const Form = () => {
   const [pageType, setPageType] = useState("login");
   const { palette } = useTheme();
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
 
+  const registered = useSelector((state) => state.registered);
 
 
 
@@ -98,9 +105,39 @@ const Form = () => {
     )
     .then(function (response) {
       console.log(response);
+      toast.success('Compte Crée avec Succes', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        })
+        let rez=response.data.theId
+        dispatch(
+          setRegistered({
+            registered: rez,
+          })
+        )
+
+        console.log(registered)
     })
     .catch(function (error) {
-      console.log(error);
+      console.log(error)
+      toast.error("Echec lors de la creation du compte", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        })
+  
+  
     });
 
     const savedUser = await savedUserResponse.json();
@@ -110,6 +147,11 @@ const Form = () => {
       setPageType("login");
     }
   };
+
+
+
+
+
 
   const login = async (values, onSubmitProps) => {
     const loggedInResponse = await fetch("/user/login", {
@@ -135,16 +177,50 @@ const Form = () => {
 
     const loggedIn =await loggedInResponse.json();
     onSubmitProps.resetForm();
-    if (loggedIn) {
+    if (loggedIn.token) {
       dispatch(
         setLogin({
           user: loggedIn.user,
           token: loggedIn.token,
         })
       );
-      console.log("nav")
-      navigate("/home");
-    }
+
+        toast.success('Connexion avec succes', {
+          position: "top-right",
+          autoClose: 1000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          })
+        
+          dispatch(
+            setRegistered({
+              registered: null,
+            })
+          )
+
+
+      setTimeout(() => {
+        navigate("/home");
+
+      }, 2000);
+    }  else{
+      toast.error("Echec de connexion,Vérifiez vos Infos", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        })
+  
+  
+      }
   };
 
   const handleFormSubmit = async (values, onSubmitProps) => {
@@ -181,6 +257,30 @@ const Form = () => {
           >
             {isRegister && (
               <>
+
+
+                          {registered!=null?(
+                            
+
+
+
+                            <TextField
+                            name="theId"
+                            label="Votre Login"
+                            defaultValue={registered}
+                            inputProps={
+                              { readOnly: true, }
+                            }
+                            value={registered?registered:values.theId}
+            
+                             sx={{ gridColumn: "span 4" }}
+                            />
+                                      
+                        
+                        
+                  ):null}
+                          
+        
                 <TextField
                   label="Prenom"
                   onBlur={handleBlur}
@@ -203,7 +303,7 @@ const Form = () => {
                   helperText={touched.nom && errors.nom}
                   sx={{ gridColumn: "span 2" }}
                 />
-                <TextField
+                {/* <TextField
                   label="Date de Naissance"
                   onBlur={handleBlur}
                   onChange={handleChange}
@@ -213,8 +313,41 @@ const Form = () => {
                   helperText={touched.dateDeNaissance && errors.dateDeNaissance}
                   sx={{ gridColumn: "span 4" }}
                   
-                />
-                  <DatePickerField name="date"/>
+                /> */}
+
+
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+
+                  <DesktopDatePicker
+                  type="text"
+                  label="Date de Naissance"
+                  onBlur={handleBlur}
+                  inputFormat="dd/mm/yyyy"
+                  value={values.dateDeNaissance}
+                  onChange={(value) => setFieldValue("dateDeNaissance", value, true)}
+                    renderInput={(params) => <TextField {...params} 
+                    sx={{ gridColumn: "span 4" }}
+                    error={Boolean(touched.dateDeNaissance) && Boolean(errors.dateDeNaissance)}
+                    helperText={touched.dateDeNaissance && errors.dateDeNaissance}                  
+                    />}
+                  error={Boolean(touched.dateDeNaissance) && Boolean(errors.dateDeNaissance)}
+                  helperText={touched.dateDeNaissance && errors.dateDeNaissance}
+                  sx={{ gridColumn: "span 4" }}
+
+                    />
+
+                  </LocalizationProvider>
+
+
+
+
+
+
+
+
+
+
+
 
                 <TextField
                   label="Genre"
@@ -250,7 +383,7 @@ const Form = () => {
                       >
                         <input {...getInputProps()} />
                         {!values.picture ? (
-                          <p>Add Picture Here</p>
+                          <p>Ajoutez une photo</p>
                         ) : (
                           <FlexBetween>
                             <Typography>{values.picture.name}</Typography>
@@ -262,8 +395,8 @@ const Form = () => {
                   </Dropzone>
                 </Box>
 
-                Medecin?
-               <form >
+                  Medecin?
+   
             
               <input
               label="Medecin?"
@@ -275,15 +408,23 @@ const Form = () => {
             />
             
       
-           </form>
                   
 
                 
               </>
             )}
-            {isLogin && (
+
+
+
+
+            {isLogin&& (
+              
+
+
+
               <TextField
               label="Login"
+
               onBlur={handleBlur}
               onChange={handleChange}
               value={values.theId}
@@ -294,6 +435,10 @@ const Form = () => {
             />
             
             )}
+
+
+
+
             <TextField
               label="Mot de passe"
               type="password"
@@ -337,6 +482,9 @@ const Form = () => {
                 },
               }}
             >
+              
+          
+              
               {isLogin
                 ?
                  "Vous n'avez pas encore de compte, créez-en un!"

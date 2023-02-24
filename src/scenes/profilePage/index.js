@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "scenes/navbar";
 import { useDispatch } from "react-redux";
 import { setLogin } from "state";
-import PostsWidget from "scenes/widgets/PostsWidget";
 import UserWidget from "scenes/widgets/UserWidget";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
@@ -25,6 +24,9 @@ import {
   IconButton,
   useMediaQuery,
 } from "@mui/material";
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import AdapterDateFns from '@date-io/date-fns';
 
 const ProfilePage = () => {
   let savedUser
@@ -121,7 +123,7 @@ const ProfilePage = () => {
                   
                 navigate("/home")
         }else{
-          toast.error("Erreur lors de la mise à jour", {
+          toast.error("Verifiez votre mot de passe", {
             position: "bottom-right",
             autoClose: 5000,
             hideProgressBar: false,
@@ -233,17 +235,27 @@ validationSchema={registerSchema}
             helperText={touched.nom && errors.nom}
             sx={{ gridColumn: "span 4" }}
           />
-          <TextField
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+
+            <DesktopDatePicker
+            type="text"
             label="Date de Naissance"
             onBlur={handleBlur}
-            onChange={handleChange}
+            inputFormat="dd/mm/yyyy"
             value={values.dateDeNaissance}
-            name="dateDeNaissance"
+            onChange={(value) => setFieldValue("dateDeNaissance", value, true)}
+              renderInput={(params) => <TextField {...params} 
+              sx={{ gridColumn: "span 4" }}
+              error={Boolean(touched.dateDeNaissance) && Boolean(errors.dateDeNaissance)}
+              helperText={touched.dateDeNaissance && errors.dateDeNaissance}                  
+              />}
             error={Boolean(touched.dateDeNaissance) && Boolean(errors.dateDeNaissance)}
             helperText={touched.dateDeNaissance && errors.dateDeNaissance}
-            sx={{ gridColumn: "span 8" }}
-            
-          />
+            sx={{ gridColumn: "span 4" }}
+
+              />
+
+            </LocalizationProvider>
 
           <TextField
             label="Genre"
@@ -316,7 +328,6 @@ validationSchema={registerSchema}
 </WidgetWrapper>
 
           <Box m="2rem 0" />
-          <PostsWidget userId={userId} isProfile />
         </Box>
       </Box>
     </Box>

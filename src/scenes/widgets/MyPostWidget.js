@@ -20,7 +20,11 @@ import axios from "axios";
 import { useState } from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
-
+import { setAdded } from "state";
+import { RepartitionRounded } from '@mui/icons-material';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import AdapterDateFns from '@date-io/date-fns';
 
 const registerSchema = yup.object().shape({
   prenom: yup.string().required("required"),
@@ -40,6 +44,7 @@ const initialValuesRegister = {
 
 
 const MyPostWidget = () => {
+  const [arrayOfPatients,setarrayOfPatients]=useState([])
   let savedUser=undefined
   const dispatch = useDispatch();
   const { palette } = useTheme();
@@ -47,6 +52,7 @@ const MyPostWidget = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const mediumMain = palette.neutral.mediumMain;
   const medium = palette.neutral.medium;
+  const added = useSelector((state) => state.added);
 
   const register = async (values, onSubmitProps) => {
 
@@ -103,9 +109,23 @@ const config ={
   // }
   
 
-
   const handleFormSubmit = async (values, onSubmitProps) => {
+    console.log(values)
+
+    if(arrayOfPatients.length>4){
+
+    setarrayOfPatients((arrayOfPatients)=>arrayOfPatients.slice(0,4))
+    }
+    setarrayOfPatients((arrayOfPatients)=>[values,...arrayOfPatients])
+    dispatch(
+      setAdded({
+        added: arrayOfPatients,
+    
+      })
+    );
+    setarrayOfPatients((arrayOfPatients)=>arrayOfPatients)
     await register(values, onSubmitProps);
+    console.log(added)
   };
 
   return (
@@ -161,17 +181,28 @@ const config ={
                   helperText={touched.nom && errors.nom}
                   sx={{ gridColumn: "span 2" }}
                 />
-                <TextField
-                  label="Date de Naissance"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.dateDeNaissance}
-                  name="dateDeNaissance"
-                  error={Boolean(touched.dateDeNaissance) && Boolean(errors.dateDeNaissance)}
-                  helperText={touched.dateDeNaissance && errors.dateDeNaissance}
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+
+                <DesktopDatePicker
+                type="text"
+                label="Date de Naissance"
+                onBlur={handleBlur}
+                inputFormat="dd/mm/yyyy"
+                value={values.dateDeNaissance}
+                onChange={(value) => setFieldValue("dateDeNaissance", value, true)}
+                  renderInput={(params) => <TextField {...params} 
                   sx={{ gridColumn: "span 4" }}
-                  
-                />
+                  error={Boolean(touched.dateDeNaissance) && Boolean(errors.dateDeNaissance)}
+                  helperText={touched.dateDeNaissance && errors.dateDeNaissance}                  
+                  />}
+                error={Boolean(touched.dateDeNaissance) && Boolean(errors.dateDeNaissance)}
+                helperText={touched.dateDeNaissance && errors.dateDeNaissance}
+                sx={{ gridColumn: "span 4" }}
+                
+                  />
+
+                </LocalizationProvider>
+
 
                 <TextField
                   label="Genre"
@@ -204,11 +235,7 @@ const config ={
 
             </Button>
             <Typography
-              onClick={() => {
-              resetForm()
 
-
-              }}
               sx={{
                 textDecoration: "underline",
                 color: palette.primary.main,

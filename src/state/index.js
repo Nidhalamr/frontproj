@@ -6,6 +6,11 @@ const initialState = {
   token: null,
   posts: [],
   search:"",
+  patient:null,
+  added:null,
+  data:null,
+  registered:null,
+  id:null,
 };
 
 export const authSlice = createSlice({
@@ -19,23 +24,34 @@ export const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
     },
+    setPatient: (state, action) => {
+      state.patient = action.payload.patient;
+    },
+    setData: (state, action) => {
+      state.data = action.payload.data;
+    },
     setSearch: (state, action) => {
       state.search = action.payload.search;
+    },
+    setAdded: (state,action) => {
+
+        state.added=action.payload.added;
+      // }else{
+      //   state.added=state.added.pop()
+      //   state.added=state.added.push(action.payload.added)
+      // }
     },
     setLogout: (state) => {
       state.user = null;
       state.token = null;
     },
-    setFriends: (state, action) => {
-      if (state.user) {
-        state.user.friends = action.payload.friends;
-      } else {
-        console.error("user friends non-existent :(");
-      }
+    setRegistered: (state, action) => {
+      state.registered = action.payload.registered;
+
     },
-    setPosts: (state, action) => {
-      state.posts = action.payload.posts;
-    },
+
+
+
     setPost: (state, action) => {
       const updatedPosts = state.posts.map((post) => {
         if (post._id === action.payload.post._id) return action.payload.post;
@@ -46,6 +62,6 @@ export const authSlice = createSlice({
   },
 });
 
-export const { setMode,setSearch, setLogin, setLogout, setFriends, setPosts, setPost } =
+export const {setAdded,setRegistered,setData, setMode,setPatient,setSearch, setLogin, setLogout, setPost } =
   authSlice.actions;
 export default authSlice.reducer;

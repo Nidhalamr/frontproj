@@ -22,11 +22,11 @@ import {
   CoPresent,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { setMode, setLogout,setSearch} from "state";
+import { setMode, setLogout,setSearch,setData} from "state";
 import { useNavigate } from "react-router-dom";
 import FlexBetween from "components/FlexBetween";
 import { useEffect} from "react";
-
+import axios from "axios";
 
 const Navbar = ({userId}) => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
@@ -35,6 +35,7 @@ const Navbar = ({userId}) => {
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const token = useSelector((state) => state.token);
   const [input, setInput] = useState("");
+  const data = useSelector((state) => state.data);
 
 
 
@@ -82,11 +83,60 @@ console.log(input)
 };
 
 
+
+let searchEnc=encodeURI(input)
+
+let url=`/patient/search/query?search=${searchEnc}&limit=10`
+
+const config = {
+  headers:
+    { Authorization: token }
+  
+};
+const getPatient = async () => {
+  const response = await axios.get(url, config)
+  .then(res=> {
+    let rez=res.data
+      
+      
+    dispatch(
+      setData({
+        data: rez,
+    
+      })
+      )
+      console.log(data)
+    })
+    
+
+  .catch(err=> console.log(err))
+
+  console.log(data)
+  
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 let handleSubmit= () => {
   dispatch(
     setSearch({
   search:input
 }))
+getPatient();
+
 
 console.log(input,"éaa")
 navigate(`/patient/search/search=${input}`)

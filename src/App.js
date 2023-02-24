@@ -8,6 +8,8 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { themeSettings } from "./theme";
 import SearchPage from "scenes/searchPage"
+import ReportPage from "scenes/reportPage";
+import ErrorPage from "scenes/errorPage";
 
 function App() {
   const mode = useSelector((state) => state.mode);
@@ -34,6 +36,15 @@ function App() {
               <Route
               path="/patient/search/:search"
               element={isAuth ? <SearchPage /> : <Navigate to="/" />}
+            />
+              <Route
+              path="/rapport/patient/:id"
+              element={isAuth ? <ReportPage /> : <Navigate to="/" />}
+            />
+              <Route
+              path="*"
+              exact={true}
+              element={isAuth ? <ErrorPage /> : <Navigate to="/" />}
             />
           </Routes>
         </ThemeProvider>
