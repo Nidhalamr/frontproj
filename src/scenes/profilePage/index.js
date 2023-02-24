@@ -245,7 +245,7 @@ validationSchema={registerSchema}
             type="text"
             label="Date de Naissance"
             onBlur={handleBlur}
-            inputFormat="dd/mm/yyyy"
+            format="MM/dd/yyyy"
             value={values.dateDeNaissance}
             onChange={(value) => setFieldValue("dateDeNaissance", value, true)}
               renderInput={(params) => <TextField {...params} 
@@ -281,7 +281,7 @@ validationSchema={registerSchema}
                     </Select>
                 </FormControl>
 
-                
+
               <TextField
               label="Mot de passe"
               type="password"

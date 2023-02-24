@@ -35,7 +35,7 @@ const registerSchema = yup.object().shape({
   nom: yup.string().required("required"),
   password: yup.string().required("required"),
   genre: yup.string().required("required"),
-  dateDeNaissance: yup.string(),
+  dateDeNaissance: yup.date(),
   isMedecin: yup.boolean(),
   picture: yup.string()
 });
@@ -330,7 +330,7 @@ const Form = () => {
                   type="text"
                   label="Date de Naissance"
                   onBlur={handleBlur}
-                  inputFormat="dd/mm/yyyy"
+                  format="MM/dd/yyyy"
                   value={values.dateDeNaissance}
                   onChange={(value) => setFieldValue("dateDeNaissance", value, true)}
                     renderInput={(params) => <TextField {...params} 

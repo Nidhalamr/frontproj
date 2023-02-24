@@ -243,7 +243,7 @@ const handleClickDelete=async (el) => {
               <DesktopDatePicker
               type="text"
               label={`Date de Naissance: ${patient.dateDeNaissance}`}
-              inputFormat="dd/mm/yyyy"
+              format="MM/dd/yyyy"
               value={state.dateDeNaissance}
               onChange={(newValue) => {
                 setState({
