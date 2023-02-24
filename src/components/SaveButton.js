@@ -38,7 +38,7 @@ const updatePatient = async () => {
   if (response.status==200){
     toast.success('Patient modifié', {
       position: "bottom-right",
-      autoClose: 5000,
+      autoClose: 1500,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -46,8 +46,10 @@ const updatePatient = async () => {
       progress: undefined,
       theme: "dark",
       })
-
-      refreshPage()
+      setTimeout(() => {
+        refreshPage()
+        
+      }, 1500);
 
   }else{
     toast.error("Erreur lors de la modification", {

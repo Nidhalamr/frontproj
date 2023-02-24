@@ -12,6 +12,10 @@ import {
   Button,
   IconButton,
   useMediaQuery,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl
 } from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
@@ -204,18 +208,25 @@ const config ={
                 </LocalizationProvider>
 
 
-                <TextField
-                  label="Genre"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.genre}
-                  name="genre"
-                  error={
-                    Boolean(touched.genre) && Boolean(errors.genre)
-                  }
-                  helperText={touched.genre && errors.genre}
-                  sx={{ gridColumn: "span 4" }}
-                  />
+                <FormControl fullWidth
+                sx={{ gridColumn: "span 4" }}
+                  >
+              <InputLabel id="demo-simple-select-label">Genre</InputLabel>
+
+                <Select
+                    label="Genre"
+
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={values.genre}
+                    name="genre"
+                    onChange={handleChange}
+                  >
+
+                    <MenuItem value={"Homme"}>Homme</MenuItem>
+                    <MenuItem value={"Femme"}>Femme</MenuItem>
+                    </Select>
+                </FormControl>
             </Box>
 
             <Box>

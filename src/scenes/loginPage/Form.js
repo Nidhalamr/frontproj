@@ -6,6 +6,10 @@ import {
   useMediaQuery,
   Typography,
   useTheme,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl
 } from "@mui/material";
 import { Formik, useFormik } from "formik";
 import * as yup from "yup";
@@ -24,7 +28,7 @@ import { ToastContainer,toast} from 'react-toastify';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import AdapterDateFns from '@date-io/date-fns';
-
+import capitalizeFirstLetter from "./CapitalizeFirstLetter"
 
 const registerSchema = yup.object().shape({
   prenom: yup.string().required("required"),
@@ -105,7 +109,7 @@ const Form = () => {
     )
     .then(function (response) {
       console.log(response);
-      toast.success('Compte Crée avec Succes', {
+      toast.success('Compte crée avec succes', {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -224,11 +228,15 @@ const Form = () => {
   };
 
   const handleFormSubmit = async (values, onSubmitProps) => {
+
+
     if (isLogin) await login(values, onSubmitProps);
-    if (isRegister) await register(values, onSubmitProps);
+    if (isRegister) {
+      values.nom=capitalizeFirstLetter(values.nom)
+      values.prenom=capitalizeFirstLetter(values.prenom)
+      await register(values, onSubmitProps)};
   };
 
-  
   return (
     <>
     <Formik
@@ -341,26 +349,25 @@ const Form = () => {
 
 
 
+              <FormControl fullWidth
+                sx={{ gridColumn: "span 4" }}
+                  >
+              <InputLabel id="demo-simple-select-label">Genre</InputLabel>
 
+                <Select
+                    label="Genre"
 
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={values.genre}
+                    name="genre"
+                    onChange={handleChange}
+                  >
 
-
-
-
-
-
-                <TextField
-                  label="Genre"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.genre}
-                  name="genre"
-                  error={
-                    Boolean(touched.genre) && Boolean(errors.genre)
-                  }
-                  helperText={touched.genre && errors.genre}
-                  sx={{ gridColumn: "span 4" }}
-                  />
+                    <MenuItem value={"Homme"}>Homme</MenuItem>
+                    <MenuItem value={"Femme"}>Femme</MenuItem>
+                    </Select>
+                </FormControl>
                   <Box
                   gridColumn="span 4"
                   border={`1px solid ${palette.neutral.medium}`}

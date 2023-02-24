@@ -28,6 +28,10 @@ const ReportPage = () => {
 
   const [writing,setWriting] =useState("")
 
+
+  const timeElapsed = Date.now();
+  const today = new Date(timeElapsed);
+
   const { id } = useParams();
   
   const config = {
@@ -57,7 +61,7 @@ const ReportPage = () => {
 let values={
 MedecinId:_id,
 idPatient:id,
-publicationDate:Date.now(),
+publicationDate:today.toLocaleDateString(),
 nomPrenom:`${user.prenom} ${user.nom}`,
 contenu:writing
 

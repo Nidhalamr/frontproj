@@ -1,5 +1,8 @@
 
-import { Box, Divider, IconButton, Typography,  TextField, useTheme,   Button, useMediaQuery} from "@mui/material";
+import { Box, Divider, IconButton, Typography,  TextField, useTheme,   Button, useMediaQuery,  Select,
+  MenuItem,
+  InputLabel,
+  FormControl} from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
 import { useState,useEffect } from "react";
@@ -11,7 +14,9 @@ import SaveButton from "components/SaveButton";
 import { useNavigate } from "react-router-dom";
 import { setData } from "state";
 import { ToastContainer,toast} from 'react-toastify';
-
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import AdapterDateFns from '@date-io/date-fns';
 
 const PostWidget = (data) => {
   const dispatch = useDispatch();
@@ -143,8 +148,10 @@ const deletePatient = async (el) => {
       })
       data.data.data.slice(data.data.data.indexOf(el))
 
-
-      refreshPage()
+      setTimeout(() => {
+        refreshPage()
+        
+      }, 1500);
 
   }else{
     toast.error("Erreur lors de la suppression", {
@@ -228,24 +235,60 @@ const handleClickDelete=async (el) => {
 
           sx={{ gridColumn: "span 3" }}
         />
-         <TextField
-          type='text'
-          label={`Ancienne Date de Naissance: ${patient.dateDeNaissance}`}
-          defaultValue={state.dateDeNaissance}
-          name="dateDeNaissance"
-          onChange={handleChange}
 
-          sx={{ gridColumn: "span 3" }}
-        />
-         <TextField
-          type='text'
-          label={`Ancien Genre: ${patient.genre}`}
-          defaultValue={state.genre}
-          name="genre"
-          onChange={handleChange}
 
-          sx={{ gridColumn: "span 3" }}
-        />
+
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+
+              <DesktopDatePicker
+              type="text"
+              label={`Date de Naissance: ${patient.dateDeNaissance}`}
+              inputFormat="dd/mm/yyyy"
+              value={state.dateDeNaissance}
+              onChange={(newValue) => {
+                setState({
+                  ...state,
+                  dateDeNaissance: newValue
+                });
+                
+              }}
+                renderInput={(params) => <TextField {...params} 
+                error={false} 
+                sx={{ gridColumn: "span 3" }}
+                          
+                />}
+
+              sx={{ gridColumn: "span 3" }}
+
+                />
+
+              </LocalizationProvider>
+
+
+
+
+        <FormControl fullWidth
+            sx={{ gridColumn: "span 3" }}
+              >
+          <InputLabel id="demo-simple-select-label">Genre</InputLabel>
+
+            <Select
+                label="Genre"
+
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={state.genre}
+                name="genre"
+                onChange={handleChange}
+              >
+
+                <MenuItem value={"Homme"}>Homme</MenuItem>
+                <MenuItem value={"Femme"}>Femme</MenuItem>
+                </Select>
+            </FormControl>
+
+              
+
           </Box>
             
           <FlexBetween/>
